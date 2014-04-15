@@ -61,7 +61,8 @@ VALUES
   ('Test post please ignore', "Why wasn't I elected?", (SELECT id FROM users WHERE
     fname = 'Bob' AND lname = 'Dole')),
   ('Test post2 please ignore', 'My law firm is failing! Why?', (SELECT id FROM
-    users WHERE fname = 'Bob' AND lname = 'Loblaw'));
+    users WHERE fname = 'Bob' AND lname = 'Loblaw')),
+  ('This is a post', 'POST', 1);
 
 INSERT INTO
 question_followers(question_id, user_id)
@@ -81,7 +82,8 @@ INSERT INTO
 VALUES
   (2,1),
   (3,1),
-  (4,2);
+  (4,2),
+  (1,3);
 
 
 

@@ -46,6 +46,14 @@ class Question
     @author_id = options['author_id']
   end
 
+  def save
+    if self.id
+      update_save
+    else
+      insert_save
+    end
+  end
+
   def author
     User.find_by_id(@author_id)
   end
@@ -64,6 +72,30 @@ class Question
 
   def num_likes
     QuestionLike.num_likes_for_question_id(@id)
+  end
+
+  protected
+
+  def insert_save
+    QuestionsDatabase.instance.execute(<<-SQL, title, body,author_id)
+      INSERT INTO
+        questions(title, body, author_id)
+      VALUES
+        (?,?,?);
+    SQL
+
+    @id = QuestionsDatabase.instance.last_insert_row_id
+  end
+
+  def update_save
+    QuestionsDatabase.instance.execute(<<-SQL, @title, @body,@author_id, @id)
+      UPDATE
+        questions
+      SET
+        title = ?, body = ?, author_id = ?
+      WHERE
+        id = ?
+    SQL
   end
 end
 

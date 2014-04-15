@@ -41,9 +41,16 @@ class Reply
   end
 
   def initialize(op = {})
-    p options
     @id, @question_id, @reply_id = op['id'], op['question_id'], op['reply_id']
     @author_id, @body = op['author_id'], op['body']
+  end
+
+  def save
+    if @id
+      update_save
+    else
+      insert_save
+    end
   end
 
   def author
@@ -68,5 +75,29 @@ class Reply
         reply_id = ?
     SQL
     reply_data.map { |rd| Reply.new(rd) }
+  end
+
+  protected
+
+  def insert_save
+    QuestionsDatabase.instance.execute(<<-SQL, question_id, reply_id, author_id, body)
+      INSERT INTO
+        replies(question_id, reply_id, author_id, body)
+      VALUES
+        (?,?,?,?);
+    SQL
+
+    @id = QuestionsDatabase.instance.last_insert_row_id
+  end
+
+  def update_save
+    QuestionsDatabase.instance.execute(<<-SQL, question_id, reply_id, author_id, body, id)
+      UPDATE
+        replies
+      SET
+      question_id = ?, reply_id = ?, author_id = ?, body = ?
+      WHERE
+        id = ?
+    SQL
   end
 end
