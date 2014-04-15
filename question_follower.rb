@@ -1,4 +1,5 @@
 require './questionsdatabase'
+require './User'
 
 class QuestionFollower
   attr_accessor :id, :question_id, :user_id
@@ -8,7 +9,7 @@ class QuestionFollower
       SELECT
         *
       FROM
-      question_followers
+        question_followers
       WHERE
         id = ?
     SQL
@@ -16,8 +17,55 @@ class QuestionFollower
     QuestionFollower.new(data.first)
   end
 
-  def self.followers_for_question_id
+  def self.followers_for_question_id(q_id)
+    user_data = QuestionsDatabase.instance.execute(<<-SQL, q_id)
+      SELECT
+        *
+      FROM
+        question_followers
+      JOIN
+        users
+      ON
+        question_followers.user_id = users.id
+      WHERE
+        question_followers.question_id = ?
+    SQL
+    user_data.map { |ud| User.new(ud) }
+  end
 
+  def self.followed_questions_for_user_id(user_id)
+    question_data = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+    SELECT
+      *
+    FROM
+      question_followers
+    JOIN
+      questions
+    ON
+      question_followers.question_id = questions.id
+    WHERE
+      question_followers.user_id = ?
+    SQL
+    question_data.map { |qd| Question.new(qd) }
+  end
+
+  def self.most_followed_questions(n)
+    # Refactor to use LIMIT
+    question_data = QuestionsDatabase.instance.execute(<<-SQL)
+    SELECT
+    questions.*
+    FROM
+    question_followers
+    JOIN
+    questions
+    ON
+    questions.id = question_followers.question_id
+    GROUP BY
+    questions.id
+    ORDER BY
+    COUNT(question_followers.user_id) DESC
+    SQL
+    question_data.take(n).map { |qd| Question.new(qd) }
   end
 
   def initialize(op = {})

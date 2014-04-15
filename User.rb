@@ -1,5 +1,6 @@
 require './questionsdatabase'
 require './question'
+require './question_follower'
 require './reply'
 
 class User
@@ -31,7 +32,6 @@ class User
   end
 
   def initialize(options = {})
-    p options
     @id = options['id']
     @fname = options['fname']
     @lname = options['lname']
@@ -44,4 +44,29 @@ class User
   def authored_replies
     Reply.find_by_author_id(@id)
   end
+
+  def followed_questions
+    QuestionFollower.followed_questions_for_user_id(@id)
+  end
+
+  def liked_questions
+    QuestionLike.liked_questions_for_user_id(@id)
+  end
+
+  def average_karma
+    karma = QuestionsDatabase.instance.execute(<<-SQL, @id)
+      SELECT
+        COUNT(1)
+      FROM
+        question_likes
+      JOIN
+        questions
+      ON
+        questions.id = question_likes.question_id AND questions.author_id = ?
+      GROUP BY
+        questions.id
+    SQL
+    p karma
+  end
+
 end

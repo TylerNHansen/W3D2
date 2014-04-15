@@ -1,8 +1,8 @@
 CREATE TABLE users
 (
-id INTEGER PRIMARY KEY,
-fname TEXT NOT NULL,
-lname TEXT NOT NULL
+  id INTEGER PRIMARY KEY,
+  fname TEXT NOT NULL,
+  lname TEXT NOT NULL
 );
 
 CREATE TABLE questions
@@ -63,8 +63,25 @@ VALUES
   ('Test post2 please ignore', 'My law firm is failing! Why?', (SELECT id FROM
     users WHERE fname = 'Bob' AND lname = 'Loblaw'));
 
+INSERT INTO
+question_followers(question_id, user_id)
+VALUES
+(1,3),
+(1,4),
+(2,2);
 
+INSERT INTO
+  replies(question_id, reply_id, author_id, body)
+VALUES
+  (1, null, 1, 'seriously guys, ignore this'),
+  (1, 1, 3, "Do you want replies? Because that's how you get replies");
 
+INSERT INTO
+  question_likes(user_id, question_id)
+VALUES
+  (2,1),
+  (3,1),
+  (4,2);
 
 
 

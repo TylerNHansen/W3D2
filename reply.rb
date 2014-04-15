@@ -8,7 +8,7 @@ class Reply
       SELECT
         *
       FROM
-      replies
+        replies
       WHERE
         id = ?
     SQL
@@ -47,7 +47,7 @@ class Reply
   end
 
   def author
-    Author.find_by_id(@author_id)
+    User.find_by_id(@author_id)
   end
 
   def question
