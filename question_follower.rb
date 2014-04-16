@@ -1,13 +1,8 @@
 require './questionsdatabase'
 require './User'
-require './table'
 
-class QuestionFollower < Table
+class QuestionFollower
   attr_accessor :id, :question_id, :user_id
-
-  def self.table_name
-    'question_followers'
-  end
 
   def self.followers_for_question_id(q_id)
     user_data = QuestionsDatabase.instance.execute(<<-SQL, q_id)
@@ -42,7 +37,8 @@ class QuestionFollower < Table
   end
 
   def self.most_followed_questions(n)
-    question_data = QuestionsDatabase.instance.execute(<<-SQL, n)
+    # Refactor to use LIMIT
+    question_data = QuestionsDatabase.instance.execute(<<-SQL)
     SELECT
     questions.*
     FROM
@@ -55,9 +51,8 @@ class QuestionFollower < Table
     questions.id
     ORDER BY
     COUNT(question_followers.user_id) DESC
-    LIMIT ?
     SQL
-    question_data.map { |qd| Question.new(qd) }
+    question_data.take(n).map { |qd| Question.new(qd) }
   end
 
   def initialize(op = {})

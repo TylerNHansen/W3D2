@@ -45,15 +45,15 @@ class Reply < Table
   end
 
   def author
-    User.find_by_id(@author_id)
+    User.find_by_id(@author_id).first
   end
 
   def question
-    Question.find_by_id(@question_id)
+    Question.find_by_id(@question_id).first
   end
 
   def parent_reply
-    Reply.find_by_id(@reply_id)
+    Reply.find_by_id(@reply_id).first
   end
 
   def child_replies

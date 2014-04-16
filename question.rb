@@ -34,7 +34,7 @@ class Question < Table
   end
 
   def author
-    User.find_by_id(@author_id)
+    User.find_by_id(@author_id).first
   end
 
   def replies
