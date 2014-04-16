@@ -1,19 +1,10 @@
 require './questionsdatabase'
 
-class Reply
+class Reply < Table
   attr_accessor :id, :question_id, :reply_id, :author_id, :body
 
-  def self.find_by_id(id)
-    data = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        replies
-      WHERE
-        id = ?
-    SQL
-
-    Reply.new(data.first)
+  def self.table_name
+    'replies'
   end
 
   def self.find_by_question_id(question_id)
@@ -77,27 +68,4 @@ class Reply
     reply_data.map { |rd| Reply.new(rd) }
   end
 
-  protected
-
-  def insert_save
-    QuestionsDatabase.instance.execute(<<-SQL, question_id, reply_id, author_id, body)
-      INSERT INTO
-        replies(question_id, reply_id, author_id, body)
-      VALUES
-        (?,?,?,?);
-    SQL
-
-    @id = QuestionsDatabase.instance.last_insert_row_id
-  end
-
-  def update_save
-    QuestionsDatabase.instance.execute(<<-SQL, question_id, reply_id, author_id, body, id)
-      UPDATE
-        replies
-      SET
-      question_id = ?, reply_id = ?, author_id = ?, body = ?
-      WHERE
-        id = ?
-    SQL
-  end
 end

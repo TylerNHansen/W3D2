@@ -1,20 +1,11 @@
 require './questionsdatabase'
 require './question'
 
-class QuestionLike
+class QuestionLike < Table
   attr_accessor :id, :question_id, :user_id
 
-  def self.find_by_id(id)
-    data = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        question_likes
-      WHERE
-        id = ?
-    SQL
-
-    QuestionLike.new(data.first)
+  def self.table_name
+    'question_likes'
   end
 
   def self.likers_for_question_id(q_id)
@@ -64,8 +55,7 @@ class QuestionLike
   end
 
   def self.most_liked_questions(n)
-    # Refactor to use LIMIT
-    question_data = QuestionsDatabase.instance.execute(<<-SQL)
+    question_data = QuestionsDatabase.instance.execute(<<-SQL, n)
     SELECT
       questions.*
     FROM
@@ -78,8 +68,9 @@ class QuestionLike
       questions.id
     ORDER BY
       COUNT(question_likes.user_id) DESC
+    LIMIT ?
     SQL
-    question_data.take(n).map { |qd| Question.new(qd) }
+    question_data.map { |qd| Question.new(qd) }
   end
 
   def initialize(op = {})

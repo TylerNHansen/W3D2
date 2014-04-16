@@ -2,22 +2,14 @@ require './questionsdatabase'
 require './question'
 require './question_follower'
 require './reply'
+require './table'
 
-class User
+class User < Table
   attr_accessor :fname, :lname
   attr_reader :id
 
-  def self.find_by_id(id)
-    user_data = QuestionsDatabase.instance.execute(<<-SQL, TABLE, id)
-      SELECT
-        *
-      FROM
-        users
-      WHERE
-        id = ?
-    SQL
-
-    User.new(user_data.first)
+  def self.table_name
+    'users'
   end
 
   def self.find_by_name(fname, lname)
@@ -33,17 +25,9 @@ class User
   end
 
   def initialize(options = {})
-    @id = options['id']
-    @fname = options['fname']
     @lname = options['lname']
-  end
-
-  def save
-    if self.id.nil?
-      insert_save
-    else
-      update_save
-    end
+    @fname = options['fname']
+    @id = options['id']
   end
 
   def authored_questions
@@ -81,29 +65,6 @@ class User
     karma.first.values.first # array with exactly one hash with one value
   end
 
-  protected
-
-  def insert_save
-    QuestionsDatabase.instance.execute(<<-SQL, self.fname, self.lname)
-      INSERT INTO
-        users(fname, lname)
-      VALUES
-        (?,?);
-    SQL
-
-    @id = QuestionsDatabase.instance.last_insert_row_id
-  end
-
-  def update_save
-    QuestionsDatabase.instance.execute(<<-SQL, self.fname, self.lname, self.id)
-      UPDATE
-        users
-      SET
-        fname = ?, lname = ?
-      WHERE
-        id = ?
-    SQL
-  end
 end
 
 
